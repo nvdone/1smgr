@@ -270,8 +270,6 @@ Cluster& Cluster::operator=(const Cluster& source)
 	return *this;
 }
 
-
-
 Session::Session(ISessionInfo *sourceSessionInfo)
 {
 	sessionInfo = sourceSessionInfo;
@@ -376,4 +374,66 @@ Session& Session::operator=(const Session& source)
 	}
 
 	return *this;
+}
+
+bool SessionComparer::SystemTimeEquals(const SYSTEMTIME one, const SYSTEMTIME two)
+{
+	return one.wYear == two.wYear && one.wMonth == two.wMonth && one.wDay == two.wDay && one.wHour == two.wHour && one.wMinute == two.wMinute && one.wSecond == two.wSecond && one.wMilliseconds < two.wMilliseconds;
+}
+
+bool SessionComparer::CompareSystemTime(const SYSTEMTIME one, const SYSTEMTIME two)
+{
+	if(one.wYear == two.wYear)
+		if(one.wMonth == two.wMonth)
+			if(one.wDay == two.wDay)
+				if(one.wHour == two.wHour)
+					if(one.wMinute == two.wMinute)
+						if(one.wSecond == two.wSecond)
+							return one.wMilliseconds < two.wMilliseconds;
+						else
+							return one.wSecond < two.wSecond;
+					else
+						return one.wMinute < two.wMinute;
+				else
+					return one.wHour < two.wHour;
+			else
+				return one.wDay < two.wDay;
+		else
+			return one.wMonth < two.wMonth;
+	else
+		return one.wYear < two.wYear;
+}
+
+bool SessionComparer::Compare(const Session *one, const Session *two)
+{
+	if(one->UserName.GetValue() == two->UserName.GetValue())
+		if(SystemTimeEquals(one->StartedAt.GetValue(), two->StartedAt.GetValue()))
+			if(SystemTimeEquals(one->LastActiveAt.GetValue(), two->LastActiveAt.GetValue()))
+				return one->SessionId.GetValue() < two->SessionId.GetValue();
+			else
+				return CompareSystemTime(one->LastActiveAt.GetValue(), two->LastActiveAt.GetValue());
+		else
+			return CompareSystemTime(one->StartedAt.GetValue(), two->StartedAt.GetValue());
+	else
+		return one->UserName.GetValue() < two->UserName.GetValue();
+}
+
+bool SessionComparer::CompareBySessionId(const Session *one, const Session *two)
+{
+	return one->SessionId.GetValue() < two->SessionId.GetValue();
+}
+
+bool SessionComparer::CompareByUserName(const Session *one, const Session *two)
+{
+	return one->UserName.GetValue() < two->UserName.GetValue();
+}
+
+bool SessionComparer::CompareByStartedAt(const Session *one, const Session *two)
+{
+	return CompareSystemTime(one->StartedAt.GetValue(), two->StartedAt.GetValue());
+}
+
+bool SessionComparer::CompareByLastActiveAt(const Session *one, const Session *two)
+{
+	return CompareSystemTime(one->LastActiveAt.GetValue(), two->LastActiveAt.GetValue());
 }

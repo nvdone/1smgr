@@ -171,4 +171,18 @@ class Session
 		Property<SYSTEMTIME> LastActiveAt;
 };
 
+class SessionComparer
+{
+	private:
+		static bool SystemTimeEquals(const SYSTEMTIME one, const SYSTEMTIME two);
+		static bool CompareSystemTime(const SYSTEMTIME one, const SYSTEMTIME two);
+
+	public:
+		static bool Compare(const Session *one, const Session *two);
+		static bool CompareBySessionId(const Session *one, const Session *two);
+		static bool CompareByUserName(const Session *one, const Session *two);
+		static bool CompareByStartedAt(const Session *one, const Session *two);
+		static bool CompareByLastActiveAt(const Session *one, const Session *two);
+};
+
 #endif //_COMConnector_h_

@@ -15,6 +15,7 @@
 #define _WIN32_WINNT 0x0502
 
 #include <vector>
+#include <algorithm>
 #include <locale>
 #include <wchar.h>
 #include <stdio.h>
@@ -34,7 +35,7 @@ std::wstring *systemTimeToStr(SYSTEMTIME t)
 	return new std::wstring(buf);
 }
 
-int act(int kill, const ServerAgent* serverAgent, wchar_t* victimClusterName, wchar_t* login, wchar_t* password, int sessionId)
+int act(int kill, const ServerAgent* serverAgent, wchar_t* victimClusterName, wchar_t* login, wchar_t* password, int sessionId, int sort)
 {
 	std::vector<Cluster*>* clusters = serverAgent->GetClusters();
 	if (!clusters)
@@ -58,6 +59,27 @@ int act(int kill, const ServerAgent* serverAgent, wchar_t* victimClusterName, wc
 				wprintf(L"WARNING: failed to authenticate in the cluster.\r\n");
 
 			std::vector<Session*>* sessions = serverAgent->GetSessions(*cluster);
+
+			switch(sort)
+			{
+				case 1:
+					std::sort(sessions->begin(), sessions->end(), SessionComparer::Compare);
+					break;
+				case 2:
+					std::sort(sessions->begin(), sessions->end(), SessionComparer::CompareBySessionId);
+					break;
+				case 3:
+					std::sort(sessions->begin(), sessions->end(), SessionComparer::CompareByUserName);
+					break;
+				case 4:
+					std::sort(sessions->begin(), sessions->end(), SessionComparer::CompareByStartedAt);
+					break;
+				case 5:
+					std::sort(sessions->begin(), sessions->end(), SessionComparer::CompareByLastActiveAt);
+					break;
+				default:
+				break;
+			}
 
 			if (sessions)
 			{
@@ -133,7 +155,7 @@ int main()
 
 	if ((!list && !kill) || cl->HasParam(L"-?", 0))
 	{
-		wprintf(L"NVD 1C Session Manager\r\n(C) 2023, Nikolay Dudkin\r\n\r\nUsage: %s <list | kill [-session:X]> [-path:\"1C installation bin folder path\"] [-server:\"1CServerName:port\"] [-cluster:\"1C cluster name\"] [-login:\"1C cluster admin login\"] [-password:\"1C cluster admin password\"]\r\n", cl->GetCommand(0)->GetName(1));
+		wprintf(L"NVD 1C Session Manager\r\n(C) 2023, Nikolay Dudkin\r\n\r\nUsage: %s <list | kill [-session:X]> [-path:\"1C installation bin folder path\"] [-server:\"1CServerName:port\"] [-cluster:\"1C cluster name\"] [-login:\"1C cluster admin login\"] [-password:\"1C cluster admin password\"] [-sort:SessionId|UserName|Started|LastActive]\r\n", cl->GetCommand(0)->GetName(1));
 
 		delete cl;
 		return 1;
@@ -158,6 +180,20 @@ int main()
 	wchar_t* password = cl->GetOptionValue(L"-password", 1, 0);
 	if (!password)
 		password = (wchar_t*)L"";
+
+	int sortType = 1;
+	wchar_t* sort = cl->GetOptionValue(L"-sort", 1, 1);
+	if (sort)
+	{
+		if(!wcscmp(sort, L"sessionid"))
+			sortType = 2;
+		if(!wcscmp(sort, L"username"))
+			sortType = 3;
+		if(!wcscmp(sort, L"started"))
+			sortType = 4;
+		if(!wcscmp(sort, L"lastactive"))
+			sortType = 5;
+	}
 
 	HRESULT result;
 
@@ -188,7 +224,7 @@ int main()
 
 		if (list)
 		{
-			if (!act(0, serverAgent, victimClusterName, login, password, 0))
+			if (!act(0, serverAgent, victimClusterName, login, password, 0, sortType))
 			{
 				delete serverAgent;
 				delete cl;
@@ -198,7 +234,7 @@ int main()
 
 		if (kill)
 		{
-			if (!act(1, serverAgent, victimClusterName, login, password, sessionId))
+			if (!act(1, serverAgent, victimClusterName, login, password, sessionId, 0))
 			{
 				delete serverAgent;
 				delete cl;
