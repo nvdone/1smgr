@@ -34,4 +34,4 @@ Usage: **1smgr <list [-sort:SessionId|UserName|Started|LastActive] | kill [-sess
 **-login** - 1C cluster administrator name; if no cluster administrator is set, this parameter should not be provided\
 **-password** - 1C cluster administrator password; if no cluster administrator is set, this parameter should not be provided\
 \
-Example: 1smgr kill -session:1234 -path:"C:\Program Files\1cv8\8.3.12.3456\bin" -server:"server.local:1540" -cluster:"Local cluster" -login:"clusteradmin" -password:"verysecretpassword"\
+Example: 1smgr kill -session:1234 -path:"C:\Program Files\1cv8\8.3.12.3456\bin" -server:"server.local:1540" -cluster:"Local cluster" -login:"clusteradmin" -password:"verysecretpassword"
