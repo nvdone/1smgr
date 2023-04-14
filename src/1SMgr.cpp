@@ -155,7 +155,7 @@ int main()
 
 	if ((!list && !kill) || cl->HasParam(L"-?", 0))
 	{
-		wprintf(L"NVD 1C Session Manager\r\n(C) 2023, Nikolay Dudkin\r\n\r\nUsage: %s <list | kill [-session:X]> [-path:\"1C installation bin folder path\"] [-server:\"1CServerName:port\"] [-cluster:\"1C cluster name\"] [-login:\"1C cluster admin login\"] [-password:\"1C cluster admin password\"] [-sort:SessionId|UserName|Started|LastActive]\r\n", cl->GetCommand(0)->GetName(1));
+		wprintf(L"NVD 1C Session Manager\r\n(C) 2023, Nikolay Dudkin\r\n\r\nUsage: %s <list [-sort:SessionId|UserName|Started|LastActive] | kill [-session:X]> [-path:\"1C installation bin folder path\"] [-server:\"1CServerName:port\"] [-cluster:\"1C cluster name\"] [-login:\"1C cluster admin login\"] [-password:\"1C cluster admin password\"]\r\n", cl->GetCommand(0)->GetName(1));
 
 		delete cl;
 		return 1;
